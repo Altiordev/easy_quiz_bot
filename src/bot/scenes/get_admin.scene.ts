@@ -56,16 +56,17 @@ export function createGetAdminScene(
           }
         }
 
-        await botService.safeReply(
-          ctx,
-          "Tabriklaymiz! Siz admin huquqiga ega bo‘ldingiz.",
-          {
-            reply_markup: {
-              keyboard: keyboards.main_keyboards,
-              resize_keyboard: true,
-            },
+        let text: string = "Tabriklaymiz! Siz admin huquqiga ega bo‘ldingiz.\n";
+        text += `Testlarni boshqarish uchun sayt: ${process.env.DASHBOARD_URL}\n`;
+        text += `Saytga kirish uchun login(chat_id): <code>${ctx.from?.id}</code>`;
+
+        await botService.safeReply(ctx, text, {
+          parse_mode: "HTML",
+          reply_markup: {
+            keyboard: keyboards.main_keyboards,
+            resize_keyboard: true,
           },
-        );
+        });
       } else {
         await botService.safeReply(ctx, "Parol xato, admin bo‘la olmaysiz!", {
           reply_markup: {
