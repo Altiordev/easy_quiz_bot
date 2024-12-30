@@ -23,7 +23,11 @@ export function createGetAdminScene(
       if (chatId) {
         const user = await authService.findUserByChatId(chatId);
         if (user && user.isAdmin) {
-          await botService.safeReply(ctx, "Siz allaqachon adminsiz!");
+          let text: string = "Siz allaqachon adminsiz!\n";
+          text += `Testlarni boshqarish uchun sayt: ${process.env.DASHBOARD_URL}\n`;
+          text += `Saytga kirish uchun login(chat_id): <code>${ctx.from?.id}</code>`;
+
+          await botService.safeReply(ctx, text);
           return ctx.scene.leave();
         }
       }
