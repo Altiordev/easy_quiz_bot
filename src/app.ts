@@ -15,13 +15,9 @@ import AuthRouter from "./auth/auth.route";
 dotenv.config();
 
 const corsOptions = {
-  origin: "http://localhost:5173", // Frontend URL
+  origin: "*", // Frontend URL
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "ngrok-skip-browser-warning",
-  ],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 class App {
