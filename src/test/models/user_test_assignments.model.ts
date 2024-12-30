@@ -55,7 +55,7 @@ class UserTestAssignments extends Model {
   @Column(DataType.INTEGER)
   currentQuestionIndex: number;
 
-  @Column(DataType.INTEGER)
+  @Column(DataType.FLOAT)
   score: number;
 
   @Column(DataType.INTEGER)
