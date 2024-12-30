@@ -27,7 +27,7 @@ export function createGetAdminScene(
           text += `Testlarni boshqarish uchun sayt: ${process.env.DASHBOARD_URL}\n`;
           text += `Saytga kirish uchun login(chat_id): <code>${ctx.from?.id}</code>`;
 
-          await botService.safeReply(ctx, text);
+          await botService.safeReply(ctx, text, { parse_mode: "HTML" });
           return ctx.scene.leave();
         }
       }
