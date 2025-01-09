@@ -26,13 +26,20 @@ export function createGetAdminScene(
           let text: string = "Siz allaqachon adminsiz!\n";
           text += `Testlarni boshqarish uchun sayt: ${process.env.DASHBOARD_URL}\n`;
           text += `Saytga kirish uchun login(chat_id): <code>${ctx.from?.id}</code>`;
+          text += `-------------------`;
+          text += `Вы уже являетесь администратором!\n`;
+          text += `Сайт для управления тестами: ${process.env.DASHBOARD_URL}\n`;
+          text += `Для входа на сайт используйте логин (chat_id): <code>${ctx.from?.id}</code>`;
 
           await botService.safeReply(ctx, text, { parse_mode: "HTML" });
           return ctx.scene.leave();
         }
       }
 
-      await botService.safeReply(ctx, "Admin parolini kiriting:");
+      await botService.safeReply(
+        ctx,
+        "Admin parolini kiriting:\n-------------------\nВведите пароль администратора:",
+      );
       return ctx.wizard.next(); // -> 2-BOSQICH
     },
 
@@ -63,6 +70,10 @@ export function createGetAdminScene(
         let text: string = "Tabriklaymiz! Siz admin huquqiga ega bo‘ldingiz.\n";
         text += `Testlarni boshqarish uchun sayt: ${process.env.DASHBOARD_URL}\n`;
         text += `Saytga kirish uchun login(chat_id): <code>${ctx.from?.id}</code>`;
+        text += `-------------------`;
+        text += `Поздравляем! Вы получили права администратора.\n`;
+        text += `Сайт для управления тестами: ${process.env.DASHBOARD_URL}\n`;
+        text += `Для входа на сайт используйте логин (chat_id): <code>${ctx.from?.id}</code>`;
 
         await botService.safeReply(ctx, text, {
           parse_mode: "HTML",
