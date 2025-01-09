@@ -3,10 +3,10 @@ import QuestionsModel from "./models/questions.model";
 import OptionsModel from "./models/options.model";
 import CoreRepo from "../core/core.repo";
 import {
-  IFilterTest,
   IOptions,
   IQuestion,
   ITest,
+  ITopic,
 } from "../interfaces/test.interface";
 import { ErrorMessage } from "../enums/error-message.enum";
 import {
@@ -14,8 +14,7 @@ import {
   IGetAllResponse,
   IPaginationOptions,
 } from "../interfaces/interfaces";
-import { Sequelize } from "sequelize-typescript";
-// import { Sequelize } from "sequelize-typescript";
+import TopicsModel from "./models/topics.model";
 
 const getIncludeOptions = (isAdmin?: boolean) => {
   return [
@@ -29,15 +28,110 @@ const getIncludeOptions = (isAdmin?: boolean) => {
 };
 
 export default class TestService {
+  private topicsModel = TopicsModel;
   private testModel = TestsModel;
   private questionModel = QuestionsModel;
   private optionModel = OptionsModel;
   private repo: CoreRepo = new CoreRepo();
 
-  public async getTests(
-    filter: IFilterTest,
+  public async getTopics(
     pagination: IPaginationOptions,
-    isAdmin: boolean,
+  ): Promise<IGetAllResponse<ITopic>> {
+    const { rows, count }: IGetAll<ITopic> = await this.repo.getAll({
+      model: this.topicsModel,
+      pagination,
+      include: [
+        {
+          model: this.testModel,
+        },
+      ],
+      order: [[`createdAt`, "ASC"]],
+    });
+
+    return {
+      data: rows,
+      totalCount: count,
+      totalPages: Math.ceil(count / pagination.limit),
+      currentPage: pagination.page,
+    };
+  }
+
+  public async getTopicsForBot(
+    pagination: IPaginationOptions,
+  ): Promise<IGetAllResponse<ITopic>> {
+    const { rows, count }: IGetAll<ITopic> = await this.repo.getAll({
+      model: this.topicsModel,
+      where: {
+        active: true,
+      },
+      pagination,
+      include: [
+        {
+          model: this.testModel,
+        },
+      ],
+      order: [[`createdAt`, "ASC"]],
+    });
+
+    return {
+      data: rows,
+      totalCount: count,
+      totalPages: Math.ceil(count / pagination.limit),
+      currentPage: pagination.page,
+    };
+  }
+
+  public async getTopicById(topic_id: number): Promise<ITopic | null> {
+    return await this.repo.findByPK({
+      model: this.topicsModel,
+      id: topic_id,
+      include: [
+        {
+          model: this.testModel,
+        },
+      ],
+      order: [[{ model: TestsModel, as: "tests" }, "createdAt", "DESC"]],
+    });
+  }
+
+  public async createTopic(data: Partial<ITopic>): Promise<ITopic> {
+    return await this.repo.create({
+      model: this.topicsModel,
+      newData: data,
+      where: {
+        name: data.name,
+      },
+      existInstanceErrorMsg: ErrorMessage.TopicAlreadyExists,
+    });
+  }
+
+  public async updateTopic(
+    topic_id: number,
+    updateData: Partial<ITopic>,
+  ): Promise<void> {
+    await this.repo.update({
+      model: this.topicsModel,
+      updateData,
+      where: {
+        id: topic_id,
+      },
+      checkWhere: {
+        name: updateData.name,
+      },
+    });
+  }
+
+  public async deleteTopic(topic_Id: number): Promise<void> {
+    await this.repo.delete({
+      model: this.topicsModel,
+      where: {
+        id: topic_Id,
+      },
+    });
+  }
+
+  public async getTests(
+    pagination: IPaginationOptions,
   ): Promise<IGetAllResponse<ITest>> {
     const { rows, count }: IGetAll<ITest> = await this.repo.getAll({
       model: this.testModel,
@@ -59,15 +153,18 @@ export default class TestService {
   }
 
   public async getTestsForBot(
+    topic_id: number,
     pagination: IPaginationOptions,
   ): Promise<IGetAllResponse<ITest>> {
     const { rows, count }: IGetAll<ITest> = await this.repo.getAll({
       model: this.testModel,
       where: {
+        topic_id,
         active: true,
       },
       pagination,
       include: [
+        { model: this.topicsModel },
         {
           model: this.questionModel,
         },

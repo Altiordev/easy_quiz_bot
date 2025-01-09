@@ -1,7 +1,7 @@
 import AuthService from "../auth/auth.service";
 import { Scenes } from "telegraf";
 import { IGetAllResponse } from "../interfaces/interfaces";
-import { ITest, IUserTestAssign } from "../interfaces/test.interface";
+import { ITest, ITopic, IUserTestAssign } from "../interfaces/test.interface";
 import { inline_keyboards } from "./bot.keyboards";
 
 export default class BotService {
@@ -27,10 +27,63 @@ export default class BotService {
     }
   }
 
+  public buildTopicPageHTML(response: IGetAllResponse<ITopic>) {
+    const { data: topics, totalCount, totalPages, currentPage } = response;
+
+    let text: string = `<b>📚 Mavzular ro‘yxati</b>\n`;
+    text += `Umumiy mavzular soni: <b>${totalCount} ta</b>\n`;
+    text += `Sahifa: <b>${currentPage}</b> / <b>${totalPages}</b>\n\n`;
+
+    const limit: number = 3;
+    const startIndex: number = (currentPage - 1) * limit + 1;
+
+    topics.forEach((topic: ITopic, idx: number) => {
+      const globalIndex: number = startIndex + idx;
+      text += `<b>${globalIndex}) Mavzuning nomi:</b> <i>${topic.name}</i>\n`;
+      const testsCount: number = topic.tests ? topic.tests.length : 0;
+      text += `<b>Testlar soni:</b> <i>${testsCount}</i>\n\n`;
+    });
+
+    text +=
+      "Mavzuni <b>tartib raqamini</b> tanlang⬇️ \n" +
+      "yoki boshqa sahifaga o‘ting.";
+
+    const inline_keyboard: any[][] = [];
+
+    const rowTopicIds: any[] = [];
+    topics.forEach((topic: ITopic, idx: number) => {
+      const globalIndex: number = startIndex + idx;
+      rowTopicIds.push({
+        text: String(globalIndex),
+        callback_data: `topic_id_${topic.id}`,
+      });
+    });
+
+    if (rowTopicIds.length > 0) {
+      inline_keyboard.push(rowTopicIds);
+    }
+
+    const navRow: any[] = [];
+
+    if (currentPage > 1) {
+      navRow.push(inline_keyboards.topicPaginationBack);
+    }
+
+    if (currentPage < totalPages) {
+      navRow.push(inline_keyboards.topicPaginationNext);
+    }
+
+    if (navRow.length > 0) {
+      inline_keyboard.push(navRow);
+    }
+
+    return { text, inline_keyboard };
+  }
+
   public buildTestPageHTML(response: IGetAllResponse<ITest>) {
     const { data: tests, totalCount, totalPages, currentPage } = response;
 
-    let text: string = `<b>📚 Testlar ro'yxati</b>\n`;
+    let text: string = `<b>📎 Testlar ro'yxati</b>\n`;
     text += `Umumiy testlar soni: <b>${totalCount} ta</b>\n`;
     text += `Sahifa: <b>${currentPage}</b> / <b>${totalPages}</b>\n\n`;
 

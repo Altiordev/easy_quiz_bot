@@ -7,6 +7,7 @@ import {
   IOptions,
   IQuestion,
   ITest,
+  ITopic,
 } from "../interfaces/test.interface";
 import { IGetAllResponse, IPaginationOptions } from "../interfaces/interfaces";
 import { StatusCode } from "../enums/status-code.enum";
@@ -15,14 +16,111 @@ import {
   CreateOptionDto,
   CreateQuestionDto,
   CreateTestDto,
+  CreateTopicDto,
   UpdateOptionDto,
   UpdateQuestionDto,
   UpdateTestDto,
+  UpdateTopicDto,
 } from "./test.dto";
 import { BadRequestError } from "../errors/errors";
 
 export default class TestController {
   private service: TestService = new TestService();
+
+  public getAllTopics = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { page = 1, limit = 100 } = req.query;
+
+      const pagination: IPaginationOptions = {
+        page: +page,
+        limit: +limit,
+      };
+
+      const response: IGetAllResponse<ITopic> =
+        await this.service.getTopics(pagination);
+
+      res.status(StatusCode.Ok).json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getTopicById = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      if (isNaN(Number(req.params.topic_id)))
+        return next(new BadRequestError("Invalid topic ID"));
+
+      const response: ITopic | null = await this.service.getTopicById(
+        Number(req.params.topic_id),
+      );
+
+      res.status(StatusCode.Ok).json(response);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public createTopic = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      await validation(CreateTopicDto, req.body);
+
+      const result: ITopic = await this.service.createTopic(req.body);
+      res.status(StatusCode.Created).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public updateTopic = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      if (isNaN(Number(req.params.id))) {
+        next(new BadRequestError("Invalid test ID"));
+      }
+
+      await validation(UpdateTopicDto, req.body);
+
+      const result: void = await this.service.updateTopic(
+        Number(req.params.id),
+        req.body,
+      );
+      res.status(StatusCode.Ok).json(result);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public deleteTopic = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      if (isNaN(Number(req.params.id)))
+        return next(new BadRequestError("Invalid topic ID"));
+
+      await this.service.deleteTopic(Number(req.params.id));
+
+      res.status(StatusCode.NoContent).send();
+    } catch (error) {
+      next(error);
+    }
+  };
 
   public getAllTests = async (
     req: Request,
@@ -39,13 +137,8 @@ export default class TestController {
         limit: +limit,
       };
 
-      const response: IGetAllResponse<ITest> = await this.service.getTests(
-        {
-          difficulty_level: difficulty_lvl,
-        } as IFilterTest,
-        pagination,
-        true,
-      );
+      const response: IGetAllResponse<ITest> =
+        await this.service.getTests(pagination);
 
       res.status(StatusCode.Ok).json(response);
     } catch (error) {

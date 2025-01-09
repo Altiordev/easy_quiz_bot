@@ -5,6 +5,14 @@ const inline_keyboards = {
   edit_profile: [
     [{ text: BotKeyboardTxtEnum.UPDATE, callback_data: "edit_profile" }],
   ],
+  topicPaginationBack: {
+    text: "⬅️ Oldingi sahifa",
+    callback_data: "topic_nav_prev",
+  },
+  topicPaginationNext: {
+    text: "Keyingi sahifa ➡️️",
+    callback_data: "topic_nav_next",
+  },
   testPaginationBack: {
     text: "⬅️ Oldingi sahifa",
     callback_data: "test_nav_prev",
@@ -29,11 +37,19 @@ const inline_keyboards = {
       },
     ],
   ],
+  getTestsByTopicId: (topic_id: number, testsCount: number) => [
+    [
+      {
+        text: `📎 Testlar (${testsCount ? testsCount : 0})`,
+        callback_data: `${topic_id}_tests`,
+      },
+    ],
+  ],
 };
 
 const keyboards = {
   main_keyboards: [
-    [BotKeyboardTxtEnum.TESTS],
+    [BotKeyboardTxtEnum.TOPICS],
     [BotKeyboardTxtEnum.RESULT],
     [BotKeyboardTxtEnum.PROFILE],
   ],

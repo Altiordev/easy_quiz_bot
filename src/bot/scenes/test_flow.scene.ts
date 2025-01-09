@@ -8,7 +8,7 @@ import {
   IUserTestAssign,
 } from "../../interfaces/test.interface";
 import { keyboards } from "../bot.keyboards";
-import { BotSceneIdEnum, UserStatesEnum } from "../../enums/bot.enum";
+import { BotSceneIdEnum } from "../../enums/bot.enum";
 import UserTestService from "../../test/user-test.service";
 
 export function createTestFlowScene(

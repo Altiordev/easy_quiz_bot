@@ -15,6 +15,7 @@ export enum BotMsgEnum {
   SUCCESSFULLY_UPDATED = "Profil muvaffaqiyatli yangilandi!",
   STARTING_TEST = "Test boshlandi, iltimos variantlarni tanlab javob bering...",
   TEST_NOT_FOUND = "Test topilmadi",
+  TOPIC_NOT_FOUND = "Mavzu topilmadi",
 }
 
 export enum BotKeyboardTxtEnum {
@@ -22,7 +23,7 @@ export enum BotKeyboardTxtEnum {
   UPDATE = "Tahrirlash",
   PROFILE = "👤 Profil ma'lumotlarim",
   RESULT = "🏆 Shaxsiy natijalar",
-  TESTS = "📎 Testlar",
+  TOPICS = "📚 Mavzular",
   SEND_NUMBER = "Telefon raqamini jo‘natish",
 }
 

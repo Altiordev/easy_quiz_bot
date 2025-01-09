@@ -8,6 +8,7 @@ export enum ErrorMessage {
   UserAlreadyExists = "Bu foydalanuvchi allaqachon mavjud!",
   UserWithChatIdNotFound = "Bunday chat_id bilan foydalanuvchi topilmadi!",
   TestAlreadyExists = "Bunday nom bilan test allaqachon mavjud!",
+  TopicAlreadyExists = "Bunday nom bilan mavzu allaqachon mavjud!",
   CHAT_ID_MUST_BE_NUMBER = "Chat ID raqam bo'lshi kerak",
   InvalidEnumValue = "Invalid enum value",
 }

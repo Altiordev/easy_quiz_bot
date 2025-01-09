@@ -8,6 +8,34 @@ import {
   IsString,
 } from "class-validator";
 
+export class CreateTopicDto {
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @IsNotEmpty()
+  @IsString()
+  description: string;
+
+  @IsOptional()
+  @IsBoolean()
+  active: boolean;
+}
+
+export class UpdateTopicDto {
+  @IsOptional()
+  @IsString()
+  name: string;
+
+  @IsOptional()
+  @IsString()
+  description: string;
+
+  @IsOptional()
+  @IsBoolean()
+  active: boolean;
+}
+
 export class CreateTestDto {
   @IsNotEmpty()
   @IsString()

@@ -15,7 +15,7 @@ import { createUpdateScene } from "./scenes/update_profile.scene";
 import BotService from "./bot.service";
 import TestService from "../test/test.service";
 import { IGetAllResponse } from "../interfaces/interfaces";
-import { ITest, IUserTestAssign } from "../interfaces/test.interface";
+import { ITest, ITopic, IUserTestAssign } from "../interfaces/test.interface";
 import UserTestService from "../test/user-test.service";
 import { createTestFlowScene } from "./scenes/test_flow.scene";
 import { createGetAdminScene } from "./scenes/get_admin.scene";
@@ -127,8 +127,8 @@ export class BotController {
       await ctx.scene.enter(BotSceneIdEnum.REGISTER);
     });
 
-    // ========== TESTLAR bo‘limi ==========
-    this.bot.hears(BotKeyboardTxtEnum.TESTS, async (ctx) => {
+    // ========== MAVZULAR bo‘limi ==========
+    this.bot.hears(BotKeyboardTxtEnum.TOPICS, async (ctx) => {
       //@ts-ignore
       if (ctx.session.testsMessageId) {
         //@ts-ignore
@@ -144,8 +144,164 @@ export class BotController {
         ctx.session.testMessageId = undefined;
       }
 
+      const response: IGetAllResponse<ITopic> =
+        await this.testService.getTopicsForBot({ page: 1, limit: 3 });
+
+      if (!response.data || response.data.length === 0) {
+        await this.botService.safeReply(ctx, "Hozircha mavzular mavjud emas!");
+        return;
+      }
+
+      //@ts-ignore
+      ctx.session.topicsData = response;
+
+      const { text, inline_keyboard } =
+        this.botService.buildTopicPageHTML(response);
+
+      // Xabar yuborib, message_id saqlash
+      const sent = await this.botService.safeReply(ctx, text, {
+        reply_markup: { inline_keyboard },
+        parse_mode: "HTML",
+      });
+
+      if (sent) {
+        //@ts-ignore
+        ctx.session.topicsMessageId = sent.message_id;
+      }
+    });
+
+    // ========== MAVZULAR navigatsiya ==========
+    this.bot.action(/topic_nav_.+/, async (ctx) => {
+      //@ts-ignore
+      const oldData: IGetAllResponse<ITopic> = ctx.session.topicsData;
+      if (!oldData) {
+        return ctx.answerCbQuery("Mavzular topilmadi");
+      }
+
+      // callback_data: "test_nav_next", "test_nav_prev", "test_nav_page_2", ...
+      const cbData = ctx.match[0];
+      let newPage = oldData.currentPage;
+
+      if (cbData.includes("next")) {
+        newPage = oldData.currentPage + 1;
+      } else if (cbData.includes("prev")) {
+        newPage = oldData.currentPage - 1;
+      } else if (cbData.includes("page_")) {
+        const splitted = cbData.split("_"); // ["test", "nav", "page", "2"]
+        newPage = Number(splitted[3]);
+      }
+
+      // Yangi sahifaga getTests
+      const limit = 3;
+      const newData = await this.testService.getTopicsForBot({
+        page: newPage,
+        limit,
+      });
+
+      if (!newData.data || newData.data.length === 0) {
+        await ctx.answerCbQuery("Bu sahifada mavzu topilmadi!");
+        return;
+      }
+
+      //@ts-ignore
+      ctx.session.topicsData = newData;
+
+      const { text, inline_keyboard } =
+        this.botService.buildTopicPageHTML(newData);
+
+      // Xabarni yangilash
+      try {
+        await ctx.editMessageText(text, {
+          parse_mode: "HTML",
+          reply_markup: { inline_keyboard },
+        });
+      } catch (err) {
+        console.error("editMessageText error:", err);
+      }
+
+      await ctx.answerCbQuery();
+    });
+
+    // ========== MAVZUNI TANLASH ==========
+    this.bot.action(/topic_id_(\d+)/, async (ctx) => {
+      const callbackData: string = ctx.match[0];
+      const splitted: string[] = callbackData.split("_");
+      const topicId: number = Number(splitted[2]);
+
+      //@ts-ignore
+      if (ctx.session.testsMessageId) {
+        //@ts-ignore
+        await ctx.deleteMessage(ctx.session.testsMessageId).catch(() => {});
+        //@ts-ignore
+        ctx.session.testsMessageId = undefined;
+      }
+
+      //@ts-ignore
+      if (ctx.session.topicsMessageId) {
+        //@ts-ignore
+        await ctx.deleteMessage(ctx.session.topicsMessageId).catch(() => {});
+        //@ts-ignore
+        ctx.session.topicsMessageId = undefined;
+      }
+
+      const topicData: ITopic | null =
+        await this.testService.getTopicById(topicId);
+      if (!topicData) {
+        await this.botService.safeReply(ctx, BotMsgEnum.TOPIC_NOT_FOUND);
+        return;
+      }
+
+      const testsCount: number = topicData.tests?.length || 0;
+      const sent = await this.botService.safeReply(
+        ctx,
+        `<b>Mavzuning nomi:</b> “${topicData.name}” \n\n<b>Mavzu haqida:</b> ${topicData.description} \n\n🏁 <b><i>Mavzuga doir testlarni tanlash uchun quyidagi tugmani bosing.</i></b>`,
+        {
+          parse_mode: "HTML",
+          reply_markup: {
+            inline_keyboard: inline_keyboards.getTestsByTopicId(
+              topicId,
+              testsCount,
+            ),
+          },
+        },
+      );
+
+      if (sent) {
+        //@ts-ignore
+        ctx.session.topicMessageId = sent.message_id;
+      }
+    });
+
+    // ========== TESTLAR bo‘limi ==========
+    this.bot.action(/(\d+)_tests/, async (ctx) => {
+      const callbackData: string = ctx.match[0];
+      const splitted: string[] = callbackData.split("_");
+      const topicId: number = Number(splitted[0]);
+
+      //@ts-ignore
+      if (ctx.session.testsMessageId) {
+        //@ts-ignore
+        await ctx.deleteMessage(ctx.session.testsMessageId).catch(() => {});
+        //@ts-ignore
+        ctx.session.testsMessageId = undefined;
+      }
+      //@ts-ignore
+      if (ctx.session.testMessageId) {
+        //@ts-ignore
+        await ctx.deleteMessage(ctx.session.testMessageId).catch(() => {});
+        //@ts-ignore
+        ctx.session.testMessageId = undefined;
+      }
+      //@ts-ignore
+      if (ctx.session.topicMessageId) {
+        //@ts-ignore
+        await ctx.deleteMessage(ctx.session.topicMessageId).catch(() => {});
+        //@ts-ignore
+        ctx.session.topicMessageId = undefined;
+      }
+
       const response: IGetAllResponse<ITest> =
-        await this.testService.getTestsForBot({ page: 1, limit: 3 });
+        await this.testService.getTestsForBot(topicId, { page: 1, limit: 3 });
 
       if (!response.data || response.data.length === 0) {
         await this.botService.safeReply(ctx, "Hozircha testlar mavjud emas!");
@@ -193,11 +349,13 @@ export class BotController {
 
       // Yangi sahifaga getTests
       const limit = 3;
-      const filter = {}; // agar kerak bo‘lsa
-      const newData = await this.testService.getTestsForBot({
-        page: newPage,
-        limit,
-      });
+      const newData = await this.testService.getTestsForBot(
+        oldData.data[0].topic_id,
+        {
+          page: newPage,
+          limit,
+        },
+      );
 
       if (!newData.data || newData.data.length === 0) {
         await ctx.answerCbQuery("Bu sahifada test topilmadi!");

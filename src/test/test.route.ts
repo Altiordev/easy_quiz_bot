@@ -13,6 +13,32 @@ export default class TestRoute {
   }
 
   private initRoutes() {
+    this.router.get(
+      "/topic",
+      checkAdminMiddleware,
+      this.controller.getAllTopics,
+    );
+    this.router.get(
+      "/topic/:topic_id",
+      checkAdminMiddleware,
+      this.controller.getTopicById,
+    );
+    this.router.post(
+      "/topic",
+      checkAdminMiddleware,
+      this.controller.createTopic,
+    );
+    this.router.put(
+      "/topic/:id",
+      checkAdminMiddleware,
+      this.controller.updateTopic,
+    );
+    this.router.delete(
+      "/topic/:id",
+      checkAdminMiddleware,
+      this.controller.deleteTopic,
+    );
+
     this.router.get("/test", checkAdminMiddleware, this.controller.getAllTests);
     this.router.get(
       "/test/:test_id",

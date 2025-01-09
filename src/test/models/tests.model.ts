@@ -8,11 +8,14 @@ import {
   Default,
   HasMany,
   BelongsToMany,
+  ForeignKey,
+  BelongsTo,
 } from "sequelize-typescript";
 import { TestDifficultyLevelEnum } from "../../enums/test.enum";
 import QuestionsModel from "./questions.model";
 import User_test_assignmentsModel from "./user_test_assignments.model";
 import AuthModel from "../../auth/auth.model";
+import TopicsModel from "./topics.model";
 
 @Table({
   timestamps: true,
@@ -24,6 +27,12 @@ class TestsModel extends Model {
   @PrimaryKey
   @Column(DataType.INTEGER)
   id: number;
+
+  @ForeignKey(() => TopicsModel)
+  topic_id: number;
+
+  @BelongsTo(() => TopicsModel, "topic_id")
+  topic: TopicsModel;
 
   @Column(DataType.STRING)
   name: string;

@@ -5,8 +5,20 @@ import OptionsModel from "../test/models/options.model";
 import Users from "../auth/auth.model";
 import UserTestAssignments from "../test/models/user_test_assignments.model";
 
+export interface ITopic {
+  id: number;
+  name: string;
+  description: string;
+  active: boolean;
+  tests?: ITest[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 export interface ITest {
   id: number;
+  topic_id: number;
+  topic: ITopic;
   name: string;
   difficulty_level: TestDifficultyLevelEnum;
   active: boolean;
