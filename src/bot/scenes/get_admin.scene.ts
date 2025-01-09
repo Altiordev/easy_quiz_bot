@@ -25,8 +25,8 @@ export function createGetAdminScene(
         if (user && user.isAdmin) {
           let text: string = "Siz allaqachon adminsiz!\n";
           text += `Testlarni boshqarish uchun sayt: ${process.env.DASHBOARD_URL}\n`;
-          text += `Saytga kirish uchun login(chat_id): <code>${ctx.from?.id}</code>`;
-          text += `-------------------`;
+          text += `Saytga kirish uchun login(chat_id): <code>${ctx.from?.id}</code>\n\n`;
+          text += `-------------------\n\n`;
           text += `Вы уже являетесь администратором!\n`;
           text += `Сайт для управления тестами: ${process.env.DASHBOARD_URL}\n`;
           text += `Для входа на сайт используйте логин (chat_id): <code>${ctx.from?.id}</code>`;
@@ -38,7 +38,7 @@ export function createGetAdminScene(
 
       await botService.safeReply(
         ctx,
-        "Admin parolini kiriting:\n-------------------\nВведите пароль администратора:",
+        "Admin parolini kiriting:\n\n-------------------\n\nВведите пароль администратора:",
       );
       return ctx.wizard.next(); // -> 2-BOSQICH
     },
@@ -69,8 +69,8 @@ export function createGetAdminScene(
 
         let text: string = "Tabriklaymiz! Siz admin huquqiga ega bo‘ldingiz.\n";
         text += `Testlarni boshqarish uchun sayt: ${process.env.DASHBOARD_URL}\n`;
-        text += `Saytga kirish uchun login(chat_id): <code>${ctx.from?.id}</code>`;
-        text += `-------------------`;
+        text += `Saytga kirish uchun login(chat_id): <code>${ctx.from?.id}</code>\n\n`;
+        text += `-------------------\n\n`;
         text += `Поздравляем! Вы получили права администратора.\n`;
         text += `Сайт для управления тестами: ${process.env.DASHBOARD_URL}\n`;
         text += `Для входа на сайт используйте логин (chat_id): <code>${ctx.from?.id}</code>`;
@@ -83,12 +83,16 @@ export function createGetAdminScene(
           },
         });
       } else {
-        await botService.safeReply(ctx, "Parol xato, admin bo‘la olmaysiz!", {
-          reply_markup: {
-            keyboard: keyboards.main_keyboards,
-            resize_keyboard: true,
+        await botService.safeReply(
+          ctx,
+          "Parol xato, admin bo‘la olmaysiz!\n\n-------------------\n\nНеверный пароль, вы не можете стать администратором!",
+          {
+            reply_markup: {
+              keyboard: keyboards.main_keyboards,
+              resize_keyboard: true,
+            },
           },
-        });
+        );
       }
 
       return ctx.scene.leave();
