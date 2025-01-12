@@ -88,6 +88,7 @@ export default class TestService {
       include: [
         {
           model: this.testModel,
+          include: [{ model: this.questionModel }],
         },
       ],
       order: [[{ model: TestsModel, as: "tests" }, "createdAt", "DESC"]],
