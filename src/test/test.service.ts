@@ -45,7 +45,7 @@ export default class TestService {
           model: this.testModel,
         },
       ],
-      order: [[`createdAt`, "ASC"]],
+      order: [[`createdAt`, "DESC"]],
     });
 
     return {
@@ -70,7 +70,7 @@ export default class TestService {
           model: this.testModel,
         },
       ],
-      order: [[`createdAt`, "ASC"]],
+      order: [[`createdAt`, "DESC"]],
     });
 
     return {
@@ -142,7 +142,7 @@ export default class TestService {
           model: this.questionModel,
         },
       ],
-      order: [[`createdAt`, "ASC"]],
+      order: [[`createdAt`, "DESC"]],
     });
 
     return {
@@ -170,7 +170,7 @@ export default class TestService {
           model: this.questionModel,
         },
       ],
-      order: [[`createdAt`, "ASC"]],
+      order: [[`createdAt`, "DESC"]],
     });
 
     return {
