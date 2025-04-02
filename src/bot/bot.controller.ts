@@ -19,6 +19,7 @@ import { ITest, ITopic, IUserTestAssign } from "../interfaces/test.interface";
 import UserTestService from "../test/user-test.service";
 import { createTestFlowScene } from "./scenes/test_flow.scene";
 import { createGetAdminScene } from "./scenes/get_admin.scene";
+import escapeHtml from "../utils/escape-html.util";
 
 export class BotController {
   public bot: Telegraf<GlobalSceneContext>;
@@ -252,9 +253,10 @@ export class BotController {
       }
 
       const testsCount: number = topicData.tests?.length || 0;
+      const escapedDescription:string = escapeHtml(topicData.description);
       const sent = await this.botService.safeReply(
         ctx,
-        `<b>Mavzuning nomi:</b> “${topicData.name}” \n\n<b>Mavzu haqida:</b> ${topicData.description} \n\n🏁 <b><i>Mavzuga doir testlarni tanlash uchun quyidagi tugmani bosing.</i></b>`,
+        `<b>Mavzuning nomi:</b> “${topicData.name}” \n\n<b>Mavzu haqida:</b> ${escapedDescription} \n\n🏁 <b><i>Mavzuga doir testlarni tanlash uchun quyidagi tugmani bosing.</i></b>`,
         {
           parse_mode: "HTML",
           reply_markup: {
