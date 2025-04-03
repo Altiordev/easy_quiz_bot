@@ -3,6 +3,7 @@ import { Scenes } from "telegraf";
 import { IGetAllResponse } from "../interfaces/interfaces";
 import { ITest, ITopic, IUserTestAssign } from "../interfaces/test.interface";
 import { inline_keyboards } from "./bot.keyboards";
+import escapeHtml from "../utils/escape-html.util";
 
 export default class BotService {
   private readonly authService: AuthService;
@@ -13,7 +14,8 @@ export default class BotService {
 
   public async safeReply(ctx: Scenes.WizardContext, text: string, extra?: any) {
     try {
-      return await ctx.reply(text, extra);
+      const escapedHtmlText:string = escapeHtml(text);
+      return await ctx.reply(escapedHtmlText, extra);
     } catch (err: any) {
       if (
         err?.message?.includes("403") &&
