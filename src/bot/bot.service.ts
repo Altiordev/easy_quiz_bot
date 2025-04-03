@@ -14,8 +14,7 @@ export default class BotService {
 
   public async safeReply(ctx: Scenes.WizardContext, text: string, extra?: any) {
     try {
-      const escapedHtmlText:string = escapeHtml(text);
-      return await ctx.reply(escapedHtmlText, extra);
+       return await ctx.reply(text, extra);
     } catch (err: any) {
       if (
         err?.message?.includes("403") &&
@@ -41,7 +40,8 @@ export default class BotService {
 
     topics.forEach((topic: ITopic, idx: number) => {
       const globalIndex: number = startIndex + idx;
-      text += `<b>${globalIndex}) Mavzuning nomi:</b> <i>${topic.name}</i>\n`;
+      const escapedHtmlTopicName: string = escapeHtml(topic.name)
+      text += `<b>${globalIndex}) Mavzuning nomi:</b> <i>${escapedHtmlTopicName}</i>\n`;
       const testsCount: number = topic.tests ? topic.tests.length : 0;
       text += `<b>Testlar soni:</b> <i>${testsCount}</i>\n\n`;
     });
@@ -94,7 +94,8 @@ export default class BotService {
 
     tests.forEach((test: ITest, idx: number) => {
       const globalIndex: number = startIndex + idx;
-      text += `<b>${globalIndex}) Testning nomi:</b> <i>${test.name}</i>\n`;
+      const escapedHtmlTestName: string = escapeHtml(test.name)
+      text += `<b>${globalIndex}) Testning nomi:</b> <i>${escapedHtmlTestName}</i>\n`;
       if (test.difficulty_level) {
         text += `<b>Qiyinlik darajasi:</b> <i>${test.difficulty_level}</i>\n`;
       }
@@ -151,8 +152,8 @@ export default class BotService {
     data.forEach((assign, idx) => {
       const globalIndex: number = startIndex + idx;
       const testName: string = assign.test?.name || "Noma'lum test";
-
-      text += `${globalIndex}. <b>${testName}</b>\n`;
+      const escapedHtmlTestName: string = escapeHtml(testName)
+      text += `${globalIndex}. <b>${escapedHtmlTestName}</b>\n`;
       text += `✅ <b>${assign.correct_answers} ta</b> · ❌ <b>${assign.wrong_answers} ta</b> \n`;
       text += `⏱️ <b>${assign.diff_time}</b> ichida yechgansiz\n`;
       text += `Batafsil: /result_${assign.id}\n\n`;
