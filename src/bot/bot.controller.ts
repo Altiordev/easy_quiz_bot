@@ -253,10 +253,11 @@ export class BotController {
       }
 
       const testsCount: number = topicData.tests?.length || 0;
+      const escapedName:string = escapeHtml(topicData.name);
       const escapedDescription:string = escapeHtml(topicData.description);
       const sent = await this.botService.safeReply(
         ctx,
-        `<b>Mavzuning nomi:</b> “${topicData.name}” \n\n<b>Mavzu haqida:</b> ${escapedDescription} \n\n🏁 <b><i>Mavzuga doir testlarni tanlash uchun quyidagi tugmani bosing.</i></b>`,
+        `<b>Mavzuning nomi:</b> “${escapedName}” \n\n<b>Mavzu haqida:</b> ${escapedDescription} \n\n🏁 <b><i>Mavzuga doir testlarni tanlash uchun quyidagi tugmani bosing.</i></b>`,
         {
           parse_mode: "HTML",
           reply_markup: {
@@ -641,13 +642,14 @@ export class BotController {
         }
 
         const testName = userTest.test?.name || "Noma'lum test";
+        const escapedTestName = escapeHtml(testName)
         const score = userTest.score || 0;
         const finishedAt =
           userTest.finishedAt?.toLocaleString("uz-UZ") || "...";
 
         // xabar matnini tuzamiz
         let text =
-          `📝 <b>${testName}</b> testi.\n` +
+          `📝 <b>${escapedTestName}</b> testi.\n` +
           `📊 Natija: <b>${score} ball</b>\n` +
           `📅 Tugallangan: ${finishedAt}\n\n`;
 
@@ -656,11 +658,12 @@ export class BotController {
           const ans = answers[i];
           const questionText =
             ans.question?.question || `Savol #${ans.question_id}`;
-          const optText = ans.option?.option || "...";
+          const escapedQuestionText:string = escapeHtml(questionText)
+          const optText:string = ans.option?.option || "...";
           const isCorrect = ans.option?.isCorrect ? "✅ To‘g‘ri" : "❌ Xato";
 
           text +=
-            `<b>${i + 1})</b> ${questionText}\n` +
+            `<b>${i + 1})</b> ${escapedQuestionText}\n` +
             `   ${isCorrect}: <i>${optText}</i>\n\n`;
         }
 
